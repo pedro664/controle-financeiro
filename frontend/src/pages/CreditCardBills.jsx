@@ -6,7 +6,7 @@ import { Badge } from "../components/ui/Badge";
 import { Modal } from "../components/ui/Modal";
 import { formatCurrency, formatDate } from "../utils/formatters";
 import { CreditCard, Calendar, CheckCircle2, Trash2, AlertCircle, FileText, ChevronDown, ChevronUp, Wallet, Clock } from "lucide-react";
-import { PremiumStatCard, PremiumBarCard } from "../components/premium";
+import { PremiumStatCard } from "../components/premium";
 
 export function CreditCardBills() {
   const [bills, setBills] = useState([]);
