@@ -12,12 +12,6 @@ import {
   PremiumAnalyticsCard,
 } from "../components/premium";
 import { Wallet, TrendingDown, Clock, CheckCircle2, AlertCircle, PieChart } from "lucide-react";
-import {
-  PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Tooltip,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid
-} from "recharts";
-
-const COLORS = ['#00674F', '#3EBB9E', '#73E6CB', '#0A3C30', '#64748b', '#475569', '#1e293b'];
 
 export function Dashboard() {
   const [data, setData] = useState(null);
@@ -49,41 +43,40 @@ export function Dashboard() {
   const { summary, category_breakdown = [], top_expenses = [], top_category } = data;
   const periods = seasonalData?.periods || [];
 
-  // Build real historical data from API
   const analyticsLine1 = periods.map(p => ({
-    label: p.label.slice(-2),
+    label: p.label,
     value: p.categories.reduce((s, c) => c.name !== 'Receita' ? s : s + c.total, 0),
   }));
   const analyticsLine2 = periods.map(p => ({
-    label: p.label.slice(-2),
+    label: p.label,
     value: p.total,
   }));
 
   const barData = periods.slice(-6).map(p => ({
-    label: p.label.slice(-2),
+    label: p.label,
     value1: p.total,
     value2: p.categories.length > 1 ? p.categories[1]?.total || 0 : p.total * 0.6,
   }));
 
   const lineData = periods.map(p => ({
-    label: p.label.slice(-2),
+    label: p.label,
     value: p.total,
   }));
 
-  const pieData = category_breakdown.slice(0, 4).map((c, i) => ({
+  const pieData = category_breakdown.slice(0, 6).map((c, i) => ({
     label: c.name,
     value: c.total,
-    color: COLORS[i % COLORS.length],
   }));
 
   const progressData = top_expenses.slice(0, 5).map(e => ({
-    label: e.name.length > 18 ? e.name.slice(0, 18) + "..." : e.name,
+    label: e.name.length > 22 ? e.name.slice(0, 22) + "..." : e.name,
     value: e.value,
     max: top_expenses[0]?.value * 1.2 || 1,
   }));
 
   return (
     <div className="space-y-8">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-emeraldApp-900 dark:text-emeraldApp-50">Visão Geral</h1>
@@ -103,7 +96,7 @@ export function Dashboard() {
         {top_category && <StatCard title="Maior Categoria" value={formatCurrency(top_category.total)} suffix={top_category.name} icon={AlertCircle} type="danger" />}
       </div>
 
-      {/* Premium Analytics */}
+      {/* Full-width Analytics */}
       {periods.length > 0 && (
         <PremiumAnalyticsCard
           title="Análise Financeira"
@@ -115,56 +108,40 @@ export function Dashboard() {
         />
       )}
 
-      {/* Premium Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {barData.length > 0 && (
-          <PremiumBarCard
-            title="Evolução Mensal"
-            subtitle="Comparativo por período"
-            data={barData}
-            colors={["#00674F", "#3EBB9E"]}
-          />
-        )}
-        {lineData.length > 0 && (
-          <PremiumLineCard
-            title="Tendência de Gastos"
-            subtitle="Total por mês"
-            data={lineData}
-            metric1={{ label: "Mín", value: periods.reduce((m, p) => Math.min(m, p.total), Infinity) }}
-            metric2={{ label: "Méd", value: periods.length > 0 ? periods.reduce((s, p) => s + p.total, 0) / periods.length : 0 }}
-            metric3={{ label: "Máx", value: periods.reduce((m, p) => Math.max(m, p.total), 0) }}
-          />
-        )}
+      {/* Full-width Bar Chart */}
+      {barData.length > 0 && (
+        <PremiumBarCard
+          title="Evolução Mensal"
+          subtitle="Comparativo de gastos por período"
+          data={barData}
+          colors={["#00674F", "#3EBB9E"]}
+        />
+      )}
+
+      {/* Full-width Line Chart */}
+      {lineData.length > 0 && (
+        <PremiumLineCard
+          title="Tendência de Gastos"
+          subtitle="Total acumulado por mês"
+          data={lineData}
+          metric1={{ label: "Mín", value: periods.reduce((m, p) => Math.min(m, p.total), Infinity) }}
+          metric2={{ label: "Méd", value: periods.length > 0 ? periods.reduce((s, p) => s + p.total, 0) / periods.length : 0 }}
+          metric3={{ label: "Máx", value: periods.reduce((m, p) => Math.max(m, p.total), 0) }}
+        />
+      )}
+
+      {/* Donut + Progress side by side */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <PremiumDonutCard
           title="Gastos por Categoria"
-          subtitle="Distribuição do mês"
+          subtitle="Distribuição percentual do mês"
           data={pieData}
         />
-      </div>
-
-      {/* Progress + Pie */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <PremiumProgressCard
           title="Maiores Despesas"
-          subtitle="Top 5 do mês"
+          subtitle="Top 5 gastos do mês atual"
           data={progressData}
         />
-
-        <Card className="lg:col-span-2 flex flex-col">
-          <CardHeader title="Gastos por Categoria" />
-          <div className="flex-1 min-h-[300px]">
-            {category_breakdown.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <RechartsPieChart>
-                  <Pie data={category_breakdown} cx="50%" cy="50%" innerRadius={70} outerRadius={100} paddingAngle={4} dataKey="total" nameKey="name">
-                    {category_breakdown.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                  </Pie>
-                  <Tooltip formatter={(v) => formatCurrency(v)} contentStyle={{ borderRadius: '12px', border: '1px solid #E9FFF8', backgroundColor: '#fff', color: '#0A3C30' }} itemStyle={{ color: '#0A3C30' }} />
-                </RechartsPieChart>
-              </ResponsiveContainer>
-            ) : <div className="flex items-center justify-center h-full text-emeraldApp-900/70 dark:text-emeraldApp-100/70">Sem dados</div>}
-          </div>
-        </Card>
       </div>
 
       {/* Table */}
