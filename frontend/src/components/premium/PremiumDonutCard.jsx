@@ -16,19 +16,19 @@ export function PremiumDonutCard({ title, subtitle, data = [] }) {
   const circumference = 2 * Math.PI * radius;
 
   return (
-    <div className="rounded-app border border-emeraldApp-100 bg-white p-5 shadow-card dark:bg-gray-900 dark:border-gray-700 dark:shadow-none flex flex-col gap-4">
+    <div className="rounded-app border border-emeraldApp-100 bg-white p-6 shadow-card dark:bg-gray-900 dark:border-gray-700 dark:shadow-none flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-emeraldApp-900 dark:text-emeraldApp-50">{title}</h3>
-          {subtitle && <p className="text-xs text-emeraldApp-900/60 dark:text-emeraldApp-100/60 mt-0.5">{subtitle}</p>}
+          <h3 className="text-base font-semibold text-emeraldApp-900 dark:text-emeraldApp-50">{title}</h3>
+          {subtitle && <p className="text-sm text-emeraldApp-900/60 dark:text-emeraldApp-100/60 mt-1">{subtitle}</p>}
         </div>
         <button className="p-1.5 rounded-lg hover:bg-emeraldApp-50 dark:hover:bg-gray-800 transition-colors">
           <Settings className="w-4 h-4 text-emeraldApp-900/50 dark:text-emeraldApp-100/50" />
         </button>
       </div>
 
-      <div className="flex items-center gap-5">
-        <div className="relative w-28 h-28 shrink-0">
+      <div className="flex items-center gap-8" style={{ minHeight: 200 }}>
+        <div className="relative w-44 h-44 shrink-0">
           <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
             <circle cx="50" cy="50" r={radius} fill="none" stroke="#E9FFF8" className="dark:stroke-gray-800" strokeWidth="12" />
             {segments.map((s, i) => {
@@ -44,19 +44,19 @@ export function PremiumDonutCard({ title, subtitle, data = [] }) {
             })}
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-emeraldApp-900 dark:text-emeraldApp-50 font-bold text-sm">{data.length}</span>
-            <span className="text-emeraldApp-900/50 dark:text-emeraldApp-100/50 text-[9px]">itens</span>
+            <span className="text-emeraldApp-900 dark:text-emeraldApp-50 font-bold text-xl">{data.length}</span>
+            <span className="text-emeraldApp-900/50 dark:text-emeraldApp-100/50 text-xs">categorias</span>
           </div>
         </div>
 
-        <div className="flex flex-col gap-2.5 flex-1">
-          {segments.slice(0, 4).map((s, i) => (
+        <div className="flex flex-col gap-3 flex-1">
+          {segments.slice(0, 6).map((s, i) => (
             <div key={i} className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: s.color }} />
-                <span className="text-emeraldApp-900/75 dark:text-emeraldApp-100/80 text-xs truncate max-w-[80px]">{s.label}</span>
+              <div className="flex items-center gap-2.5">
+                <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: s.color }} />
+                <span className="text-emeraldApp-900/75 dark:text-emeraldApp-100/80 text-sm">{s.label}</span>
               </div>
-              <span className="text-emeraldApp-900 dark:text-emeraldApp-50 text-xs font-medium">{formatCurrency(s.value)}</span>
+              <span className="text-emeraldApp-900 dark:text-emeraldApp-50 text-sm font-medium">{formatCurrency(s.value)}</span>
             </div>
           ))}
         </div>
