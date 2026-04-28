@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-heading: "Instrument Sans", sans-serif;
+  --font-body: "Geist", sans-serif;
+
+  --color-emeraldApp-50: #E9FFF8;
+  --color-emeraldApp-100: #C9F8EB;
+  --color-emeraldApp-200: #73E6CB;
+  --color-emeraldApp-300: #3EBB9E;
+  --color-emeraldApp-700: #00674F;
+  --color-emeraldApp-900: #0A3C30;
+
+  --color-surface: #FFFFFF;
+  --color-surface-soft: #F6FBF9;
+  --color-surface-dark: #0A3C30;
+
+  --radius-app: 1.5rem;
+
+  --shadow-soft: 0 20px 40px rgba(10, 60, 48, 0.10);
+  --shadow-card: 0 10px 30px rgba(10, 60, 48, 0.08);
+}
+
+body {
+  background-color: var(--color-surface-soft);
+  color: var(--color-emeraldApp-900);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dark body {
+  background-color: #0f172a;
+  color: #e9fff8;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.025em;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3EBB9E;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #73E6CB;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  color-scheme: dark;
+}

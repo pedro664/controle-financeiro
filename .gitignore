@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Environment
+.env
+backend/.env
+
+# Build
+frontend/dist/
+backend/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.sw?
+
+# Temp files
+*.py
+temp_*
+fix_*
+cleanup_*
+test_parser.mjs
+
+# PDF worker (large binary)
+frontend/public/pdf.worker.mjs
