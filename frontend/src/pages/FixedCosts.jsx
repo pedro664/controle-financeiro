@@ -6,7 +6,8 @@ import { Badge } from "../components/ui/Badge";
 import { Modal } from "../components/ui/Modal";
 import { Input, Select } from "../components/ui/Forms";
 import { formatCurrency, getStatusColor, getStatusLabel } from "../utils/formatters";
-import { Plus, Edit2, Trash2, Check, Clock } from "lucide-react";
+import { Plus, Edit2, Trash2, Check, Clock, TrendingDown, CheckCircle2, AlertCircle } from "lucide-react";
+import { PremiumStatCard, PremiumProgressCard } from "../components/premium";
 
 const emptyForm = { name: '', value: '', category_id: '', status: 'pendente', due_day: '' };
 
@@ -69,6 +70,10 @@ export function FixedCosts() {
 
   if (loading) return <div className="p-8 text-emeraldApp-700">Carregando...</div>;
 
+  const totalCosts = costs.reduce((s, c) => s + (c.value || 0), 0);
+  const paidCosts = costs.filter(c => c.status === 'ok').reduce((s, c) => s + (c.value || 0), 0);
+  const pendingCosts = costs.filter(c => c.status === 'pendente').reduce((s, c) => s + (c.value || 0), 0);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -79,7 +84,13 @@ export function FixedCosts() {
         <Button onClick={openCreate}><Plus className="w-5 h-5" /> Novo Custo</Button>
       </div>
 
-      <Card>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <PremiumStatCard title="Total" value={totalCosts} icon={TrendingDown} color="#F72585" />
+        <PremiumStatCard title="Pago" value={paidCosts} icon={CheckCircle2} color="#3EBB9E" />
+        <PremiumStatCard title="Pendente" value={pendingCosts} icon={AlertCircle} color="#FFC300" />
+      </div>
+
+      <Card className="dark:border-gray-800 dark:bg-[#0A0D10]">
         <CardHeader title="Todos os Custos Fixos" />
         <div className="overflow-x-auto">
           <table className="w-full text-left">

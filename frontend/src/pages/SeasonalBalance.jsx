@@ -8,6 +8,7 @@ import {
   BarChart, Bar, Legend, PieChart, Pie, Cell, LineChart, Line
 } from "recharts";
 import { BarChart3, Calendar, TrendingDown, TrendingUp, PieChart as PieIcon, Loader2, AlertTriangle } from "lucide-react";
+import { PremiumStatCard, PremiumProgressCard } from "../components/premium";
 
 const PERIOD_OPTIONS = [
   { value: 'weekly', label: 'Semanal' },
@@ -185,51 +186,10 @@ export function SeasonalBalance() {
         <>
           {/* Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emeraldApp-100 dark:bg-gray-700 text-emeraldApp-700 flex items-center justify-center">
-                  <TrendingDown className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-emeraldApp-900/60 dark:text-emeraldApp-100/60">Total no Período</p>
-                  <p className="text-xl font-bold text-emeraldApp-900 dark:text-emeraldApp-50">{formatCurrency(data.summary.total_spent)}</p>
-                </div>
-              </div>
-            </Card>
-            <Card>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emeraldApp-100 dark:bg-gray-700 text-emeraldApp-700 flex items-center justify-center">
-                  <Calendar className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-emeraldApp-900/60 dark:text-emeraldApp-100/60">Média por Período</p>
-                  <p className="text-xl font-bold text-emeraldApp-900 dark:text-emeraldApp-50">{formatCurrency(data.summary.average_per_period)}</p>
-                </div>
-              </div>
-            </Card>
-            <Card>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emeraldApp-100 dark:bg-gray-700 text-emeraldApp-700 flex items-center justify-center">
-                  <PieIcon className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-emeraldApp-900/60 dark:text-emeraldApp-100/60">Maior Categoria</p>
-                  <p className="text-xl font-bold text-emeraldApp-900 dark:text-emeraldApp-50">{data.summary.top_category?.name || '-'}</p>
-                  <p className="text-xs text-emeraldApp-900/60 dark:text-emeraldApp-100/60">{formatCurrency(data.summary.top_category?.total || 0)}</p>
-                </div>
-              </div>
-            </Card>
-            <Card>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emeraldApp-100 dark:bg-gray-700 text-emeraldApp-700 flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-emeraldApp-900/60 dark:text-emeraldApp-100/60">Transações</p>
-                  <p className="text-xl font-bold text-emeraldApp-900 dark:text-emeraldApp-50">{data.summary.transaction_count}</p>
-                </div>
-              </div>
-            </Card>
+            <PremiumStatCard title="Total no Período" value={data.summary.total_spent} icon={TrendingDown} color="#F72585" />
+            <PremiumStatCard title="Média por Período" value={data.summary.average_per_period} icon={Calendar} color="#10ABFF" />
+            <PremiumStatCard title="Maior Categoria" value={data.summary.top_category?.total || 0} icon={PieIcon} color="#7209B7" subtitle={data.summary.top_category?.name || '-'} />
+            <PremiumStatCard title="Transações" value={data.summary.transaction_count} icon={TrendingUp} color="#3EBB9E" />
           </div>
 
           {/* Area Chart */}

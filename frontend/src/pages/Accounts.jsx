@@ -6,6 +6,7 @@ import { Modal } from "../components/ui/Modal";
 import { Input, Select } from "../components/ui/Forms";
 import { formatCurrency } from "../utils/formatters";
 import { Wallet, Plus, Pencil, Trash2, Loader2, Landmark, CreditCard, PiggyBank, Banknote, X } from "lucide-react";
+import { PremiumStatCard } from "../components/premium";
 
 const TYPE_OPTIONS = [
   { value: 'corrente', label: 'Conta Corrente', icon: Landmark },
@@ -89,14 +90,21 @@ export function Accounts() {
         </Button>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <PremiumStatCard title="Total em Contas" value={accounts.reduce((s, a) => s + (a.balance || 0), 0)} icon={Wallet} color="#3EBB9E" />
+        <PremiumStatCard title="Contas Ativas" value={accounts.length} icon={Landmark} color="#10ABFF" />
+        <PremiumStatCard title="Cartões" value={accounts.filter(a => a.type?.includes('cartao')).length} icon={CreditCard} color="#F72585" />
+        <PremiumStatCard title="Poupança" value={accounts.filter(a => a.type === 'poupanca').length} icon={PiggyBank} color="#7209B7" />
+      </div>
+
       {accounts.length === 0 ? (
-        <Card>
+        <Card className="dark:border-gray-800 dark:bg-[#0A0D10]">
           <div className="text-center py-16">
-            <div className="w-16 h-16 bg-emeraldApp-100 dark:bg-gray-700 text-emeraldApp-700 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-emeraldApp-100 dark:bg-gray-800 text-emeraldApp-700 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
               <Wallet className="w-8 h-8" />
             </div>
-            <h3 className="text-lg font-semibold text-emeraldApp-900 dark:text-emeraldApp-50">Nenhuma conta</h3>
-            <p className="text-emeraldApp-900/75 dark:text-emeraldApp-100/80 mt-1">Cadastre suas contas bancárias e cartões.</p>
+            <h3 className="text-lg font-semibold text-emeraldApp-900 dark:text-white">Nenhuma conta</h3>
+            <p className="text-emeraldApp-900/75 dark:text-gray-400 mt-1">Cadastre suas contas bancárias e cartões.</p>
           </div>
         </Card>
       ) : (

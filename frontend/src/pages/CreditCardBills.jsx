@@ -5,7 +5,8 @@ import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 import { Modal } from "../components/ui/Modal";
 import { formatCurrency, formatDate } from "../utils/formatters";
-import { CreditCard, Calendar, CheckCircle2, Trash2, AlertCircle, FileText, ChevronDown, ChevronUp, Wallet } from "lucide-react";
+import { CreditCard, Calendar, CheckCircle2, Trash2, AlertCircle, FileText, ChevronDown, ChevronUp, Wallet, Clock } from "lucide-react";
+import { PremiumStatCard, PremiumBarCard } from "../components/premium";
 
 export function CreditCardBills() {
   const [bills, setBills] = useState([]);
@@ -91,7 +92,11 @@ export function CreditCardBills() {
     }
   }
 
-  if (loading) return <div className="p-8 text-emeraldApp-700">Carregando faturas...</div>;
+  const totalBills = bills.reduce((s, b) => s + (b.total_amount || 0), 0);
+  const paidBills = bills.filter(b => b.status === 'paga').reduce((s, b) => s + (b.total_amount || 0), 0);
+  const pendingBills = bills.filter(b => b.status !== 'paga').reduce((s, b) => s + (b.total_amount || 0), 0);
+
+  if (loading) return <div className="p-8 text-emeraldApp-700 dark:text-emeraldApp-50">Carregando faturas...</div>;
 
   return (
     <div className="space-y-6">
@@ -100,6 +105,12 @@ export function CreditCardBills() {
           <h1 className="text-3xl font-bold text-emeraldApp-900 dark:text-emeraldApp-50">Faturas de Cartão</h1>
           <p className="text-emeraldApp-900/75 dark:text-emeraldApp-100/80 mt-1">Controle suas faturas e pagamentos</p>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <PremiumStatCard title="Total em Faturas" value={totalBills} icon={CreditCard} color="#F72585" />
+        <PremiumStatCard title="Pago" value={paidBills} icon={CheckCircle2} color="#3EBB9E" />
+        <PremiumStatCard title="Em Aberto" value={pendingBills} icon={Clock} color="#FFC300" />
       </div>
 
       {bills.length === 0 ? (
