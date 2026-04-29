@@ -6,3 +6,4 @@ export { PremiumAnalyticsCard } from "./PremiumAnalyticsCard";
 export { PremiumRadialCard } from "./PremiumRadialCard";
 export { PremiumWideBarCard } from "./PremiumWideBarCard";
 export { PremiumStatCard } from "./PremiumStatCard";
+export { PremiumCategoryCard } from "./PremiumCategoryCard";

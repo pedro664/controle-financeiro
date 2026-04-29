@@ -20,44 +20,13 @@ export function PremiumLineCard({ title, subtitle, data = [], metric1, metric2, 
     label: d.label,
   }));
 
-  const prevValue = (idx) => (idx > 0 ? dots[idx - 1].value : dots[idx].value);
-  const variation = (idx) => {
-    const prev = prevValue(idx);
-    if (prev === 0) return 0;
-    return ((dots[idx].value - prev) / prev) * 100;
-  };
-
   return (
-    <div className="rounded-app border border-emeraldApp-100 bg-white p-6 shadow-card dark:bg-gray-900 dark:border-gray-700 dark:shadow-none flex flex-col gap-4">
+    <div className="rounded-2xl border border-emeraldApp-100 bg-white p-7 shadow-card dark:bg-[#0B1120] dark:border-gray-800/60 dark:shadow-none flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-base font-semibold text-emeraldApp-900 dark:text-emeraldApp-50">{title}</h3>
-          {subtitle && <p className="text-sm text-emeraldApp-900/60 dark:text-emeraldApp-100/60 mt-1">{subtitle}</p>}
+          <h3 className="text-lg font-semibold text-emeraldApp-900 dark:text-white">{title}</h3>
+          {subtitle && <p className="text-sm text-emeraldApp-900/55 dark:text-gray-400 mt-1">{subtitle}</p>}
         </div>
-      </div>
-
-      {/* Detail bar — altura fixa */}
-      <div className="h-7 flex items-center">
-        {active !== null ? (
-          <div className="flex items-center gap-3 text-xs animate-in fade-in duration-150">
-            <span className="font-semibold text-emeraldApp-900 dark:text-emeraldApp-50">{dots[active].label}</span>
-            <span className="text-emeraldApp-900/40 dark:text-emeraldApp-100/40">|</span>
-            <span className="text-emeraldApp-900/70 dark:text-emeraldApp-100/70">Total: <span className="font-medium">{formatCurrency(dots[active].value)}</span></span>
-            {active > 0 && (
-              <>
-                <span className="text-emeraldApp-900/40 dark:text-emeraldApp-100/40">|</span>
-                <span className={`font-medium ${variation(active) >= 0 ? "text-emerald-600" : "text-red-500"}`}>
-                  {variation(active) >= 0 ? "↑" : "↓"} {Math.abs(variation(active)).toFixed(1)}%
-                </span>
-                <span className="text-emeraldApp-900/50 dark:text-emeraldApp-100/50">vs anterior</span>
-              </>
-            )}
-          </div>
-        ) : (
-          <span className="text-xs text-emeraldApp-900/50 dark:text-emeraldApp-100/50">
-            Passe o mouse sobre um ponto para detalhes
-          </span>
-        )}
       </div>
 
       <div className="relative w-full" style={{ height: 300 }}>
@@ -96,25 +65,35 @@ export function PremiumLineCard({ title, subtitle, data = [], metric1, metric2, 
         {dots.map((pos, i) => (
           <div
             key={i}
-            className="absolute cursor-pointer"
+            className="absolute"
             style={{ left: `calc(${pos.x}% - 5px)`, top: `calc(${pos.y}% - 5px)`, width: 10, height: 10 }}
             onMouseEnter={() => setActive(i)}
             onMouseLeave={() => setActive(null)}
           >
-            <div className="w-full h-full rounded-full border-2 border-white dark:border-gray-900 bg-[#3EBB9E] transition-all duration-200 hover:scale-150" />
+            <div className="w-full h-full rounded-full border-2 border-white dark:border-[#0B1120] bg-[#3EBB9E] cursor-pointer transition-all duration-200 hover:scale-150" />
+            {/* Tooltip acima do ponto */}
+            {active === i && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-10 pointer-events-none">
+                <div className="bg-emeraldApp-900 dark:bg-gray-800 text-white text-[11px] font-medium px-2.5 py-1.5 rounded-md shadow-lg whitespace-nowrap text-center">
+                  <div className="font-semibold">{pos.label}</div>
+                  <div>{formatCurrency(pos.value)}</div>
+                </div>
+                <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-emeraldApp-900 dark:bg-gray-800 rotate-45" />
+              </div>
+            )}
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-4 pt-4 border-t border-emeraldApp-100 dark:border-gray-700">
+      <div className="grid grid-cols-3 gap-4 pt-4 border-t border-emeraldApp-100 dark:border-gray-800">
         {[
           { label: metric1?.label || "Mín", value: metric1?.value ?? 0 },
           { label: metric2?.label || "Méd", value: metric2?.value ?? 0 },
           { label: metric3?.label || "Máx", value: metric3?.value ?? 0 },
         ].map((m, i) => (
           <div key={i} className="text-center">
-            <p className="text-emeraldApp-900/60 dark:text-emeraldApp-100/60 text-xs uppercase tracking-wider mb-1">{m.label}</p>
-            <p className="text-emeraldApp-900 dark:text-emeraldApp-50 font-bold text-base">{formatCurrency(m.value)}</p>
+            <p className="text-emeraldApp-900/60 dark:text-gray-500 text-xs uppercase tracking-wider mb-1">{m.label}</p>
+            <p className="text-emeraldApp-900 dark:text-white font-bold text-base">{formatCurrency(m.value)}</p>
           </div>
         ))}
       </div>

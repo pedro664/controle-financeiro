@@ -44,64 +44,31 @@ export function PremiumAnalyticsCard({
 
   const dimLine = (line) => active && active.line !== line;
 
-  // Quando hover em qualquer ponto, mostra os dados de AMBAS as linhas para aquele mês
   const getMonthDetail = (idx) => {
     const inc = line1Data[idx]?.value || 0;
     const exp = line2Data[idx]?.value || 0;
-    const label = line1Data[idx]?.label || line2Data[idx]?.label || "";
-    return { label, inc, exp, balance: inc - exp };
+    return { inc, exp, balance: inc - exp };
   };
 
   return (
-    <div className="rounded-app border border-emeraldApp-100 bg-white p-6 shadow-card dark:bg-gray-900 dark:border-gray-700 dark:shadow-none flex flex-col gap-4">
-      {/* Header */}
+    <div className="rounded-2xl border border-emeraldApp-100 bg-white p-7 shadow-card dark:bg-[#0B1120] dark:border-gray-800/60 dark:shadow-none flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-base font-semibold text-emeraldApp-900 dark:text-emeraldApp-50">{title}</h3>
-          {subtitle && <p className="text-sm text-emeraldApp-900/60 dark:text-emeraldApp-100/60 mt-1">{subtitle}</p>}
+          <h3 className="text-lg font-semibold text-emeraldApp-900 dark:text-white">{title}</h3>
+          {subtitle && <p className="text-sm text-emeraldApp-900/55 dark:text-gray-400 mt-1">{subtitle}</p>}
+        </div>
+        <div className="flex items-center gap-4 text-xs">
+          <span className="flex items-center gap-1.5 text-emeraldApp-900/70 dark:text-gray-400">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: line1Color }} />
+            {line1Label}
+          </span>
+          <span className="flex items-center gap-1.5 text-emeraldApp-900/70 dark:text-gray-400">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: line2Color }} />
+            {line2Label}
+          </span>
         </div>
       </div>
 
-      {/* Detail bar — altura fixa, nunca muda o layout */}
-      <div className="h-8 flex items-center">
-        {active ? (
-          <div className="flex items-center gap-4 text-xs animate-in fade-in duration-150">
-            {(() => {
-              const d = getMonthDetail(active.idx);
-              return (
-                <>
-                  <span className="font-semibold text-emeraldApp-900 dark:text-emeraldApp-50">{d.label}</span>
-                  <span className="text-emeraldApp-900/40 dark:text-emeraldApp-100/40">|</span>
-                  <span className="text-emeraldApp-900/70 dark:text-emeraldApp-100/70">
-                    <span style={{ color: line1Color }} className="font-medium">{line1Label}:</span> {formatCurrency(d.inc)}
-                  </span>
-                  <span className="text-emeraldApp-900/40 dark:text-emeraldApp-100/40">|</span>
-                  <span className="text-emeraldApp-900/70 dark:text-emeraldApp-100/70">
-                    <span style={{ color: line2Color }} className="font-medium">{line2Label}:</span> {formatCurrency(d.exp)}
-                  </span>
-                  <span className="text-emeraldApp-900/40 dark:text-emeraldApp-100/40">|</span>
-                  <span className="font-medium text-emeraldApp-900 dark:text-emeraldApp-50">
-                    Saldo: {formatCurrency(d.balance)}
-                  </span>
-                </>
-              );
-            })()}
-          </div>
-        ) : (
-          <div className="flex items-center gap-4 text-xs">
-            <span className="flex items-center gap-1.5 text-emeraldApp-900/70 dark:text-emeraldApp-100/70">
-              <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: line1Color }} />
-              {line1Label}
-            </span>
-            <span className="flex items-center gap-1.5 text-emeraldApp-900/70 dark:text-emeraldApp-100/70">
-              <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: line2Color }} />
-              {line2Label}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Chart */}
       <div className="relative w-full" style={{ height: 340 }}>
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full overflow-visible">
           {[20, 40, 60, 80].map((y) => (
@@ -144,36 +111,75 @@ export function PremiumAnalyticsCard({
         {dots1.map((pos, i) => (
           <div
             key={`l1-${i}`}
-            className="absolute cursor-pointer"
+            className="absolute"
             style={{ left: `calc(${pos.x}% - 5px)`, top: `calc(${pos.y}% - 5px)`, width: 10, height: 10 }}
             onMouseEnter={() => setActive({ line: "line1", idx: i })}
             onMouseLeave={() => setActive(null)}
           >
             <div
-              className="w-full h-full rounded-full border-2 border-white dark:border-gray-900 transition-all duration-200 hover:scale-150"
+              className="w-full h-full rounded-full border-2 border-white dark:border-[#0B1120] cursor-pointer transition-all duration-200 hover:scale-150"
               style={{ backgroundColor: line1Color, opacity: dimLine("line1") ? 0.25 : 1 }}
             />
+            {/* Tooltip acima do ponto */}
+            {active?.line === "line1" && active?.idx === i && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-10 pointer-events-none">
+                <div className="bg-emeraldApp-900 dark:bg-gray-800 text-white text-[11px] font-medium px-2.5 py-1.5 rounded-md shadow-lg whitespace-nowrap">
+                  <div className="font-semibold">{pos.label}</div>
+                  <div>{line1Label}: {formatCurrency(pos.value)}</div>
+                  {(() => {
+                    const d = getMonthDetail(i);
+                    return (
+                      <>
+                        <div>{line2Label}: {formatCurrency(d.exp)}</div>
+                        <div className="pt-0.5 mt-0.5 border-t border-white/20">Saldo: {formatCurrency(d.balance)}</div>
+                      </>
+                    );
+                  })()}
+                </div>
+                <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-emeraldApp-900 dark:bg-gray-800 rotate-45" />
+              </div>
+            )}
           </div>
         ))}
+
         {dots2.map((pos, i) => (
           <div
             key={`l2-${i}`}
-            className="absolute cursor-pointer"
+            className="absolute"
             style={{ left: `calc(${pos.x}% - 5px)`, top: `calc(${pos.y}% - 5px)`, width: 10, height: 10 }}
             onMouseEnter={() => setActive({ line: "line2", idx: i })}
             onMouseLeave={() => setActive(null)}
           >
             <div
-              className="w-full h-full rounded-full border-2 border-white dark:border-gray-900 transition-all duration-200 hover:scale-150"
+              className="w-full h-full rounded-full border-2 border-white dark:border-[#0B1120] cursor-pointer transition-all duration-200 hover:scale-150"
               style={{ backgroundColor: line2Color, opacity: dimLine("line2") ? 0.25 : 1 }}
             />
+            {/* Tooltip acima do ponto */}
+            {active?.line === "line2" && active?.idx === i && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-10 pointer-events-none">
+                <div className="bg-emeraldApp-900 dark:bg-gray-800 text-white text-[11px] font-medium px-2.5 py-1.5 rounded-md shadow-lg whitespace-nowrap">
+                  <div className="font-semibold">{pos.label}</div>
+                  <div>{line2Label}: {formatCurrency(pos.value)}</div>
+                  {(() => {
+                    const d = getMonthDetail(i);
+                    return (
+                      <>
+                        <div>{line1Label}: {formatCurrency(d.inc)}</div>
+                        <div className="pt-0.5 mt-0.5 border-t border-white/20">Saldo: {formatCurrency(d.balance)}</div>
+                      </>
+                    );
+                  })()}
+                </div>
+                <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-emeraldApp-900 dark:bg-gray-800 rotate-45" />
+              </div>
+            )}
           </div>
         ))}
 
         {/* X-axis labels */}
         <div className="absolute bottom-0 left-0 right-0 flex justify-between px-1">
           {line1Data.map((d, i) => (
-            <span key={i} className="text-[11px] text-emeraldApp-900/50 dark:text-emeraldApp-100/50">
+            <span key={i} className="text-[11px] text-emeraldApp-900/50 dark:text-gray-500">
               {d.label}
             </span>
           ))}

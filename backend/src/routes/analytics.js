@@ -30,7 +30,6 @@ function getWeekNumber(date) {
 }
 
 function parsePeriodLabel(label, period) {
-  // Returns { start, end } Date objects for sorting
   if (period === 'yearly') {
     const year = parseInt(label, 10);
     return { start: new Date(year, 0, 1), end: new Date(year, 11, 31) };
@@ -57,7 +56,6 @@ function parsePeriodLabel(label, period) {
     const [year, wk] = label.split('-W');
     const y = parseInt(year, 10);
     const w = parseInt(wk, 10);
-    // Approximate: find first Thursday of year, then add weeks
     const jan1 = new Date(Date.UTC(y, 0, 1));
     const jan1Day = jan1.getUTCDay() || 7;
     const firstThu = new Date(Date.UTC(y, 0, 1 + (4 - jan1Day)));
@@ -72,11 +70,11 @@ function getDefaultDateRange(period) {
   const end = new Date();
   const start = new Date();
   switch (period) {
-    case 'weekly':    start.setDate(end.getDate() - 84); break;  // 12 weeks
-    case 'monthly':   start.setMonth(end.getMonth() - 11); break; // 12 months
-    case 'quarterly': start.setMonth(end.getMonth() - 11); break; // 4 quarters
-    case 'semesterly':start.setMonth(end.getMonth() - 11); break; // 2 semesters
-    case 'yearly':    start.setFullYear(end.getFullYear() - 4); break; // 5 years
+    case 'weekly':    start.setDate(end.getDate() - 84); break;
+    case 'monthly':   start.setMonth(end.getMonth() - 11); break;
+    case 'quarterly': start.setMonth(end.getMonth() - 11); break;
+    case 'semesterly':start.setMonth(end.getMonth() - 11); break;
+    case 'yearly':    start.setFullYear(end.getFullYear() - 4); break;
     default:          start.setMonth(end.getMonth() - 11);
   }
   return { start, end };
@@ -111,7 +109,7 @@ analyticsRouter.get('/seasonal', async (req, res, next) => {
     const startStr = startDate.toISOString().split('T')[0];
     const endStr = endDate.toISOString().split('T')[0];
 
-    // Fetch transactions in range
+    // Fetch transactions in range (faturas do cartão — NÃO misturar com custos fixos)
     let query = supabaseAdmin
       .from('transactions')
       .select('date, value, type, category_id, categories!transactions_category_id_fkey(id, name)')
@@ -188,6 +186,86 @@ analyticsRouter.get('/seasonal', async (req, res, next) => {
   }
 });
 
+// ── GET /api/analytics/fixed-costs ────────────────────────────────────
+// Retorna o total mensal de custos fixos por categoria (separado das faturas)
+analyticsRouter.get('/fixed-costs', async (req, res, next) => {
+  try {
+    const userId = req.userId;
+
+    const { data: fixedCosts } = await supabaseAdmin
+      .from('fixed_costs')
+      .select('value, status, category_id, categories!fixed_costs_category_id_fkey(id, name)')
+      .eq('user_id', userId)
+      .neq('status', 'cancelado');
+
+    const byCategory = new Map();
+    let total = 0;
+    let totalPaid = 0;
+    let totalPending = 0;
+
+    for (const c of (fixedCosts || [])) {
+      const val = Number(c.value) || 0;
+      const catName = c.categories?.name || 'Sem categoria';
+      total += val;
+      if (c.status === 'ok') totalPaid += val;
+      else totalPending += val;
+
+      const current = byCategory.get(catName) || { name: catName, total: 0, paid: 0, pending: 0 };
+      current.total += val;
+      if (c.status === 'ok') current.paid += val;
+      else current.pending += val;
+      byCategory.set(catName, current);
+    }
+
+    res.json({
+      data: {
+        total: Number(total.toFixed(2)),
+        total_paid: Number(totalPaid.toFixed(2)),
+        total_pending: Number(totalPending.toFixed(2)),
+        count: (fixedCosts || []).length,
+        by_category: Array.from(byCategory.values()).sort((a, b) => b.total - a.total),
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ── GET /api/analytics/bills ──────────────────────────────────────────
+// Retorna faturas de cartão agrupadas por mês de referência
+analyticsRouter.get('/bills', async (req, res, next) => {
+  try {
+    const userId = req.userId;
+
+    const { data: bills } = await supabaseAdmin
+      .from('credit_card_bills')
+      .select('reference_month, total_amount, total_paid, status')
+      .eq('user_id', userId)
+      .order('reference_month', { ascending: true });
+
+    const periods = (bills || []).map((b) => ({
+      label: b.reference_month,
+      total: Number(b.total_amount) || 0,
+      paid: Number(b.total_paid) || 0,
+      status: b.status,
+    }));
+
+    const total = periods.reduce((s, p) => s + p.total, 0);
+
+    res.json({
+      data: {
+        periods,
+        summary: {
+          total,
+          count: periods.length,
+        },
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ── GET /api/analytics/projection ─────────────────────────────────────
 analyticsRouter.get('/projection', async (req, res, next) => {
   try {
@@ -223,7 +301,7 @@ analyticsRouter.get('/projection', async (req, res, next) => {
     const variableTotal = (variableTxs || []).reduce((s, t) => s + (Number(t.value) || 0), 0);
     const variableAvg = variableTxs?.length > 0 ? variableTotal / 3 : 0;
 
-    // Current balance (sum of all account balances)
+    // Current balance
     const { data: accounts } = await supabaseAdmin
       .from('accounts')
       .select('balance')
